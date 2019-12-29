@@ -1,5 +1,7 @@
 /* the sample demonstrates how to wire UITextFields to get the wanted
-   "scroll into view" behavior on a UIScrollView when tapping/focusing fields */
+   "scroll into view" behavior on a UIScrollView when tapping/focusing fields
+   The UITextField scrolls into view upon  [MyTextField becomeFirstResponder]
+ */
 #import <UIKit/UIKit.h>
 @interface UIView(AutoLayoutHelpers)
 @end
@@ -131,6 +133,7 @@
   [sc addAutoLayoutSubview:contentView];
   [contentView pinTopToSuperview:0];
   [contentView pinBottomToSuperview:0];
+  //ensures that the contentSize of the scrollview is not ambigous
   UILayoutGuide* fr=sc.frameLayoutGuide;
   UILayoutGuide* ct=sc.contentLayoutGuide;
   [ct.widthAnchor constraintEqualToAnchor:fr.widthAnchor].active=TRUE;
@@ -143,6 +146,7 @@
   UITextField* first=[self newTextField:contentView]; //text field on top
   [first pinTopToSuperview:10];
   UITextField* prev=first;
+  //add 10 fields in the middle
   for (NSInteger idx=0;idx<10;idx++) {
     UITextField* t=[self newTextField:contentView];
     [prev pinBottomToTopOf:t constant:50];
@@ -185,16 +189,8 @@ static UIBarButtonItem *s_kb_down = nil;
 {
   _current=current;
   if (_textFields.count==0) { return;}
-  if (current==_textFields[0]) {
-    s_kb_up.enabled=false;
-  } else {
-    s_kb_up.enabled=true;
-  }
-  if (current==_textFields[_textFields.count-1]) {
-    s_kb_down.enabled=false;
-  } else {
-    s_kb_down.enabled=true;
-  }
+  s_kb_up.enabled=(current!=_textFields[0]);
+  s_kb_down.enabled=(current!=_textFields[_textFields.count-1]);
 }
 -(void)resignCurrent
 {
@@ -204,7 +200,7 @@ static UIBarButtonItem *s_kb_down = nil;
 {
   MyTextField* tf=_current;
   NSInteger idx=[_textFields indexOfObject:tf];
-  if (idx==NSNotFound) {
+  if (idx==NSNotFound) { //sanity
     return;
   }
   idx+=step;
@@ -230,10 +226,11 @@ static UIBarButtonItem *s_kb_down = nil;
 }
 @end
 
-@implementation MyTextField
-//for debugging
+@implementation MyTextField //subclass to manage prev/next inputAccessoryView buttons
 -(BOOL)becomeFirstResponder
 {
+  //calls private [UITextField scrollTextFieldToVisibleIfNecessary]
+  //which in turn calls [MyScrollView scrollRectToVisible:animated:]
   BOOL result=[super becomeFirstResponder];
   if (result){
     [self.appDelegate updatePrevNext:self];
