@@ -31,33 +31,36 @@
 {
   [view.topAnchor constraintEqualToAnchor:self.bottomAnchor constant:constant].active = YES;
 }
--(void)pinToSuperView:(CGFloat)margin
+-(void)pinToSuperview:(CGFloat)innerMargin
 {
-  [self pinTopToSuperview:margin];
-  [self pinBottomToSuperview:margin];
-  [self pinLeadingToSuperview:margin];
-  [self pinTrailingToSuperview:margin];
+  [self pinTopToSuperview:innerMargin];
+  [self pinBottomToSuperview:innerMargin];
+  [self pinLeadingToSuperview:innerMargin];
+  [self pinTrailingToSuperview:innerMargin];
 }
-@end
+@end //UIView(AutoLayoutHelpers) category
+
 @class MyAppDelegate;
-@interface MyTextField:UITextField
+@interface MyTextField:UITextField //subclass to manage prev/next inputAccessoryView buttons
 @property (weak,nonatomic) MyAppDelegate* appDelegate;
-@end
-@interface MyAppDelegate : UIResponder <UIApplicationDelegate,UITextFieldDelegate>
-{
-  UIWindow* _win;
-  UIScrollView* _scroller;
-  NSMutableArray<MyTextField*>* _textFields;
-  MyTextField* __weak _current;
-}
-@end
-@interface MyScrollView:UIScrollView
+@end //the implementation of MyTextField is located after imp of MyAppDelegate
+
+@interface MyScrollView:UIScrollView //solely exists for debug/educational purposes
 @end
 @implementation MyScrollView
 //for debugging the automatic into view scrolling, put a breakpoint here
 -(void)scrollRectToVisible:(CGRect)rect animated:(BOOL)animated
 {
   [super scrollRectToVisible:rect animated:animated];
+}
+@end //implementation MyScrollView
+
+@interface MyAppDelegate : UIResponder <UIApplicationDelegate,UITextFieldDelegate>
+{
+  UIWindow* _win;
+  UIScrollView* _scroller;
+  NSMutableArray<MyTextField*>* _textFields;
+  MyTextField* __weak _current;
 }
 @end
 @implementation MyAppDelegate
@@ -127,7 +130,7 @@
   sc.accessibilityIdentifier=@"MyScrollView";
   sc.keyboardDismissMode=UIScrollViewKeyboardDismissModeInteractive;
   [v addAutoLayoutSubview:sc];
-  [sc pinToSuperView:0];
+  [sc pinToSuperview:0];
   UIView* contentView=[[UIView alloc] init];
   contentView.accessibilityIdentifier=@"ContentView";
   [sc addAutoLayoutSubview:contentView];
@@ -224,9 +227,9 @@ static UIBarButtonItem *s_kb_down = nil;
 {
   [_current resignFirstResponder];
 }
-@end
+@end //implementation MyAppDelegate
 
-@implementation MyTextField //subclass to manage prev/next inputAccessoryView buttons
+@implementation MyTextField
 -(BOOL)becomeFirstResponder
 {
   //calls private [UITextField scrollTextFieldToVisibleIfNecessary]
@@ -245,7 +248,8 @@ static UIBarButtonItem *s_kb_down = nil;
   }
   return result;
 }
-@end
+@end //implementation MyTextField
+
 int main(int argc, char * argv[]) {
   @autoreleasepool {
       return UIApplicationMain(argc, argv, nil, NSStringFromClass([MyAppDelegate class]));
