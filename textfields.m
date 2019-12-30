@@ -1,6 +1,8 @@
 /* the sample demonstrates how to wire UITextFields to get the wanted
    "scroll into view" behavior on a UIScrollView when tapping/focusing fields
    The UITextField scrolls into view upon  [MyTextField becomeFirstResponder]
+   if the keyboard appears/disappears, UIScrollViews contentInset.bottom is updated
+   in addition a custom inputAccessoryView is demonstrated to jump to the prev/next field (like in WkWebView)
  */
 #import <UIKit/UIKit.h>
 @interface UIView(AutoLayoutHelpers)
@@ -128,6 +130,7 @@
   MyScrollView* sc=[[MyScrollView alloc] init];
   _scroller=sc;
   sc.accessibilityIdentifier=@"MyScrollView";
+  //enable swiping down the keyboard
   sc.keyboardDismissMode=UIScrollViewKeyboardDismissModeInteractive;
   [v addAutoLayoutSubview:sc];
   [sc pinToSuperview:0];
